@@ -8,15 +8,14 @@ import lombok.Data;
 public class VideoBlogDTO {
     private String title;
     private String description;
-    private String username;
     private String urlVideo;
 
 
-    public VideoBlog toEntity(){
+    public VideoBlog toEntity(String user){
         return VideoBlog.builder()
                 .title(this.title)
                 .description(this.description)
-                .username(this.username)
+                .username(user)
                 .urlVideo(this.urlVideo)
                 .build();
     }

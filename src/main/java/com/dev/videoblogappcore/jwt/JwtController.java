@@ -15,15 +15,9 @@ public class JwtController {
 
     private final  JwtService jwtService;
 
-    @GetMapping("")
-    public ResponseEntity<String> validateToken(
-            @RequestHeader("Authorization") String authorization,
-            @RequestParam String username
-    ){
-        if(jwtService.validateToken(authorization,username)){
-            return  ResponseEntity.ok().body("El token es valido, request autorizado");
-        }else{
-            return ResponseEntity.internalServerError().body("El token no es valido");
-        }
-    }
+
+
+
+
+
 }

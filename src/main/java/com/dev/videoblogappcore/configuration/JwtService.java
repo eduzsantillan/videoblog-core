@@ -1,5 +1,6 @@
 package com.dev.videoblogappcore.configuration;
 
+import com.dev.videoblogappcore.exceptions.VideoBlogException;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
@@ -14,17 +15,18 @@ public class JwtService {
 
     private static final String SECRET_KEY="423F4528482B4D6251655468576D597133743677397A24432646294A404E6352";
 
-    public boolean validateToken(String token,String username) {
-        return getUsernameFromToken(token).equals(username) && !isTokenExpired(token);
+    public String validateToken(String token) {
+       try{
+           return getUsernameFromToken(token) ;
+       }catch (Exception e) {
+           throw new VideoBlogException(511, "Token expiró");
+       }
     }
 
     public String getUsernameFromToken(String token){
         return getClaims(token).getSubject();
     }
 
-    public boolean isTokenExpired(String token){
-        return getClaims(token).getExpiration().before(new Date());
-    }
 
     private Claims getClaims(String token){
         return Jwts.parserBuilder()

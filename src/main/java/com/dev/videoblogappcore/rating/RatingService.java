@@ -1,7 +1,8 @@
-package com.dev.videoblogappcore.review;
+package com.dev.videoblogappcore.rating;
 
+import com.dev.videoblogappcore.review.Review;
 import com.dev.videoblogappcore.videoblog.VideoBlog;
-import lombok.RequiredArgsConstructor;
+import lombok.AllArgsConstructor;
 import org.bson.types.ObjectId;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -9,20 +10,19 @@ import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Service;
 
 @Service
-@RequiredArgsConstructor
-public class ReviewService {
+@AllArgsConstructor
+public class RatingService {
 
-    private final ReviewRepository reviewRepository;
+    private final RatingRepository ratingRepository;
     private final MongoTemplate mongoTemplate;
 
-    public void createReview(ReviewDTO dto,String username){
-
+    public void rateVideoBlog(RatingDTO dto,String username){
         ObjectId objectId = new ObjectId(dto.getVideoBlogId());
-        Review review = reviewRepository.insert(dto.toEntity(username));
+        Rating rating = ratingRepository.insert(dto.toEntity(username));
 
         mongoTemplate.update(VideoBlog.class)
                 .matching(Criteria.where("_id").is(objectId))
-                .apply(new Update().push("reviewIds",review.getId()))
+                .apply(new Update().push("ratingsIds",rating.getId()))
                 .first();
     }
 

@@ -8,12 +8,11 @@ import lombok.Data;
 public class ReviewDTO {
     private String videoBlogId;
     private String body;
-    private String username;
 
-    public Review toEntity(){
+    public Review toEntity(String user){
         return Review.builder()
                 .body(this.body)
-                .username(this.username)
+                .username(user)
                 .build();
     }
 }

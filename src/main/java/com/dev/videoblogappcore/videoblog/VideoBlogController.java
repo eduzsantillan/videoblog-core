@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+@CrossOrigin(origins = "*")
 @RestController
 @RequestMapping("/api/videoblog")
 @RequiredArgsConstructor
@@ -50,24 +51,24 @@ public class VideoBlogController {
             @RequestBody VideoBlogDTO request,
             @RequestHeader("Authorization") String authorization
     ){
-        if(!jwtService.validateToken(authorization,request.getUsername())){
-            return ResponseEntity.status(401).body("El token no es valido");
-        }
         try{
-            service.createVideoBlog(request);
+            String username = jwtService.validateToken(authorization);
+            service.createVideoBlog(request,username);
             return ResponseEntity.status(201).body("Video blog creado satisfactoriamente");
         }catch (VideoBlogException e){
             return ResponseEntity.status(e.getCode()).body(e.getMessage());
         }
-
     }
+
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Object> deleteVideoBlog(
-            @PathVariable String id
+            @PathVariable String id,
+            @RequestHeader("Authorization") String authorization
     ){
         try{
-            service.deleteVideoBlog(id);
+            String username = jwtService.validateToken(authorization);
+            service.deleteVideoBlog(id,username);
             return ResponseEntity.ok().body("Video blog borrado satisfactoriamente");
         }catch (VideoBlogException e){
             return ResponseEntity.status(e.getCode()).body(e.getMessage());
