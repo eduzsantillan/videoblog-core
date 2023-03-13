@@ -1,6 +1,8 @@
 package com.dev.videoblogappcore.videoblog;
 
+import com.dev.videoblogappcore.configuration.JwtService;
 import com.dev.videoblogappcore.exceptions.VideoBlogException;
+import com.google.firebase.auth.FirebaseAuthException;
 import lombok.RequiredArgsConstructor;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +17,7 @@ public class VideoBlogService {
 
 
     private final VideoBlogRepository videoBlogRepository;
+    private final JwtService jwtService;
 
     public List<VideoBlog> getAllVideoBlog(){
         return videoBlogRepository.findAll();
@@ -44,11 +47,12 @@ public class VideoBlogService {
 
 
 
-    public void createVideoBlog(VideoBlogDTO dto,String username){
+    public void createVideoBlog(VideoBlogDTO dto,String authorization){
         if(!isRequestCompleted(dto)){
             throw new VideoBlogException(400,"Request no contiene los datos necesarios");
         }
         try{
+            String username = jwtService.getUserNameFromToken(authorization);
             videoBlogRepository.save(dto.toEntity(username));
         }catch (Exception e)
         {
@@ -57,23 +61,29 @@ public class VideoBlogService {
     }
 
 
-    public void deleteVideoBlog(String id,String username){
-        ObjectId objId = new ObjectId(id);
-        Optional<VideoBlog> videoBlogToDelete = videoBlogRepository.findById(objId);
-        if(videoBlogToDelete.isPresent()){
+    public void deleteVideoBlog(String id,String authorization){
+        try {
+            String username = jwtService.getUserNameFromToken(authorization);
+            ObjectId objId = new ObjectId(id);
+            Optional<VideoBlog> videoBlogToDelete = videoBlogRepository.findById(objId);
+            if(videoBlogToDelete.isPresent()){
 
-            if(videoBlogToDelete.get().getUsername().equals(username)){
-                videoBlogRepository.delete(videoBlogToDelete.get());
+                if(videoBlogToDelete.get().getUsername().equals(username)){
+                    videoBlogRepository.delete(videoBlogToDelete.get());
+                }else{
+                    throw  new VideoBlogException(403,
+                            String.format("El usuario %s no tiene permisos para borrar el video %s. El video blog fue creado por %s",
+                                    username,
+                                    videoBlogToDelete.get().getTitle(),
+                                    videoBlogToDelete.get().getUsername()));
+                }
             }else{
-                throw  new VideoBlogException(403,
-                        String.format("El usuario %s no tiene permisos para borrar el video %s. El video blog fue creado por %s",
-                                username,
-                                videoBlogToDelete.get().getTitle(),
-                                videoBlogToDelete.get().getUsername()));
+                throw new VideoBlogException(400,"No se encontro un videoBlog con el id :" + id);
             }
-        }else{
-            throw new VideoBlogException(400,"No se encontro un videoBlog con el id :" + id);
+        }catch (Exception e){
+            throw new VideoBlogException(511,e.getMessage());
         }
+
     }
 
 

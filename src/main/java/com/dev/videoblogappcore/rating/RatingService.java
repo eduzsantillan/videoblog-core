@@ -1,5 +1,7 @@
 package com.dev.videoblogappcore.rating;
 
+import com.dev.videoblogappcore.configuration.JwtService;
+import com.dev.videoblogappcore.exceptions.VideoBlogException;
 import com.dev.videoblogappcore.review.Review;
 import com.dev.videoblogappcore.videoblog.VideoBlog;
 import lombok.AllArgsConstructor;
@@ -15,15 +17,22 @@ public class RatingService {
 
     private final RatingRepository ratingRepository;
     private final MongoTemplate mongoTemplate;
+    private final JwtService jwtService;
 
-    public void rateVideoBlog(RatingDTO dto,String username){
-        ObjectId objectId = new ObjectId(dto.getVideoBlogId());
-        Rating rating = ratingRepository.insert(dto.toEntity(username));
+    public void rateVideoBlog(RatingDTO dto,String authorization){
+        try{
+            String username = jwtService.getUserNameFromToken(authorization);
+            Rating rating = ratingRepository.insert(dto.toEntity(username));
 
-        mongoTemplate.update(VideoBlog.class)
-                .matching(Criteria.where("_id").is(objectId))
-                .apply(new Update().push("ratingsIds",rating.getId()))
-                .first();
+            mongoTemplate.update(VideoBlog.class)
+                    .matching(Criteria.where("_id").is(dto.getVideoBlogId()))
+                    .apply(new Update().push("ratingsIds",rating.getId()))
+                    .first();
+        }catch (Exception e) {
+            throw new VideoBlogException(511, e.getMessage());
+        }
+
+
     }
 
 }

@@ -24,8 +24,7 @@ public class ReviewController {
             @RequestHeader("Authorization") String authorization
     ){
         try{
-            String username = jwtService.validateToken(authorization);
-            service.createReview(request,username);
+            service.createReview(request,authorization);
             return ResponseEntity.status(201).body("Review creada satisfactoriamente");
         }catch (VideoBlogException e){
             return ResponseEntity.status(e.getCode()).body(e.getMessage());

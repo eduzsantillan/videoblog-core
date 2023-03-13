@@ -6,12 +6,17 @@ import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+
 @Data
 @Builder
 @Document(collection = "rating")
 public class Rating {
     @Id
     private ObjectId id;
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private Integer rating_id;
     private int rating;
     private String username;
 }

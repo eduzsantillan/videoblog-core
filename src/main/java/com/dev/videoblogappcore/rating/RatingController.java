@@ -22,8 +22,7 @@ public class RatingController {
             @RequestHeader("Authorization") String authorization
     ){
         try{
-            String username = jwtService.validateToken(authorization);
-            service.rateVideoBlog(request,username);
+            service.rateVideoBlog(request,authorization);
             return ResponseEntity.status(201).body("Calificación exitosa");
         }catch (VideoBlogException e){
             return ResponseEntity.status(e.getCode()).body(e.getMessage());

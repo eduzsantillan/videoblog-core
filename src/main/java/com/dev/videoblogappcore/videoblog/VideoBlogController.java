@@ -2,6 +2,9 @@ package com.dev.videoblogappcore.videoblog;
 
 import com.dev.videoblogappcore.configuration.JwtService;
 import com.dev.videoblogappcore.exceptions.VideoBlogException;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseAuthException;
+import com.google.firebase.auth.FirebaseToken;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -52,8 +55,7 @@ public class VideoBlogController {
             @RequestHeader("Authorization") String authorization
     ){
         try{
-            String username = jwtService.validateToken(authorization);
-            service.createVideoBlog(request,username);
+            service.createVideoBlog(request,authorization);
             return ResponseEntity.status(201).body("Video blog creado satisfactoriamente");
         }catch (VideoBlogException e){
             return ResponseEntity.status(e.getCode()).body(e.getMessage());
@@ -67,8 +69,7 @@ public class VideoBlogController {
             @RequestHeader("Authorization") String authorization
     ){
         try{
-            String username = jwtService.validateToken(authorization);
-            service.deleteVideoBlog(id,username);
+            service.deleteVideoBlog(id,authorization);
             return ResponseEntity.ok().body("Video blog borrado satisfactoriamente");
         }catch (VideoBlogException e){
             return ResponseEntity.status(e.getCode()).body(e.getMessage());

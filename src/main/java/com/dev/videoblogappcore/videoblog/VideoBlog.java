@@ -10,14 +10,18 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.DocumentReference;
 
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import java.util.List;
 
 @Builder
 @Data
 @Document(collection="video-blog")
 public class VideoBlog {
+
     @Id
-    private ObjectId id;
+    private String id;
+
     private String title;
     private String description;
     private String username;

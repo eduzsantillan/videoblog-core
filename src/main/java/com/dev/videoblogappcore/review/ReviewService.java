@@ -1,5 +1,7 @@
 package com.dev.videoblogappcore.review;
 
+import com.dev.videoblogappcore.configuration.JwtService;
+import com.dev.videoblogappcore.exceptions.VideoBlogException;
 import com.dev.videoblogappcore.videoblog.VideoBlog;
 import lombok.RequiredArgsConstructor;
 import org.bson.types.ObjectId;
@@ -14,16 +16,22 @@ public class ReviewService {
 
     private final ReviewRepository reviewRepository;
     private final MongoTemplate mongoTemplate;
+    private final JwtService jwtService;
 
-    public void createReview(ReviewDTO dto,String username){
+    public void createReview(ReviewDTO dto,String authorization){
 
-        ObjectId objectId = new ObjectId(dto.getVideoBlogId());
-        Review review = reviewRepository.insert(dto.toEntity(username));
+        try{
+            String username = jwtService.getUserNameFromToken(authorization);
+            Review review = reviewRepository.insert(dto.toEntity(username));
 
-        mongoTemplate.update(VideoBlog.class)
-                .matching(Criteria.where("_id").is(objectId))
-                .apply(new Update().push("reviewIds",review.getId()))
-                .first();
+            mongoTemplate.update(VideoBlog.class)
+                    .matching(Criteria.where("_id").is(dto.getVideoBlogId()))
+                    .apply(new Update().push("reviewIds",review.getId()))
+                    .first();
+        }catch (Exception e) {
+            throw new VideoBlogException(511, e.getMessage());
+        }
+
     }
 
 }
